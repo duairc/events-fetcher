@@ -1,0 +1,33 @@
+name: google-calendar-events-fetcher
+version: 0.1
+synopsis: Simple server that fetches events from Google Calendar and caches them
+homepage: https://github.com/duairc/google-calendar-events-fetcher
+license: AGPL-3
+license-file: LICENSE
+author: Shane O'Brien
+maintainer: shane@duairc.com
+category: Web
+build-type: Simple
+cabal-version: >= 1.10
+
+executable google-calendar-events-fetcher
+    main-is: google-calendar-events-fetcher.hs
+    default-language: Haskell2010
+    ghc-options: -Wall -O3 -threaded
+    build-depends:
+        aeson,
+        base,
+        bytestring,
+        ConfigFile,
+        directory,
+        hslogger,
+        http-client,
+        IntervalMap,
+        lens,
+        lens-aeson,
+        network,
+        old-locale,
+        text,
+        time,
+        unix,
+        wreq
