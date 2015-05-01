@@ -279,7 +279,7 @@ data Event = Event
 ------------------------------------------------------------------------------
 instance I.Interval Event UTCTime where
     lowerBound = either (flip UTCTime (secondsToDiffTime 0)) id . start
-    upperBound = either (flip UTCTime (secondsToDiffTime 0) . addDays 1) id . end
+    upperBound = either (flip UTCTime (secondsToDiffTime 0)) id . end
     leftClosed = const True
     rightClosed = const False
 
@@ -290,7 +290,7 @@ instance FromJSON Event where
         s <- o .: "start"
         start_ <- parseDateTime s
         e <- o .: "end"
-        end_ <- parseDateTime e
+        end_ <- either (Left . addDays 1) Right <$> parseDateTime e
         eventId_ <- o .: "id"
         summary_ <- o .: "summary"
         htmlLink_ <- o .:? "htmlLink"
@@ -614,6 +614,7 @@ fetchCaldavEvents calendar = do
             , location = toStrict . locationValue <$> veLocation v
             , description = toStrict . descriptionValue <$> veDescription v
             }
+
     dtStart z (DTStartDateTime x _) = Right $ dt2utc z x
     dtStart _ (DTStartDate (Date x) _) = Left x
 
@@ -701,7 +702,9 @@ serve sock calendar = do
             bytes <- recv connection 128
             let Just q = decode bytes
             es <- events
+            debugM (logger calendar) $ "received request: " ++ show q
             let result = query es q
+            debugM (logger calendar) $ "sending response: " ++ show result
             sendAll connection $ encode result
             debugM (logger calendar) $ "closing connection"
          loop
